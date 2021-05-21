@@ -52,7 +52,7 @@ class Profile extends React.Component{
         // console.log('组件将要加载')
     }
 
-    componentDidMount(){
+    componentDidMount() {
         // console.log('组件加载完成')
     }
 
@@ -91,7 +91,7 @@ class Profile extends React.Component{
                     }
                 </div>
                 <Func num={ this.state.num } title="王生"></Func>
-                {/*<Child num={ this.state.num } title="王生" />*/}
+                <Child num={ this.state.num } title="王生" />
             </div>
         );
     }

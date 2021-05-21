@@ -7,8 +7,7 @@ function createElement(tag, attrs, ...childrens) {
     return {
         tag,
         attrs,
-        childrens,
-        key: attrs.key || null
+        childrens
     }
 }
 

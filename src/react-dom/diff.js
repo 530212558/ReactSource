@@ -1,27 +1,68 @@
 import { setAttribute, setComponentProps, createComponent,_render } from './index'
-import { getType } from '../utils'
+import { getType,isObjectValueEqual } from '../utils'
 
-export function diffNode(oldVirtualDOM, newVirtualDOM,dom) {
-    console.log(oldVirtualDOM, newVirtualDOM,dom,dom.childNodes);
+function diffChildVnode(oldVnode,newVnode,dom){
+    /*  如果字符串、数字,false 等基本数据类型相等， 则跳出循环  */
+    if(oldVnode==newVnode){
+        return;
+    }
+    const oldDomType = getType(oldVnode);
+    const newDomType = getType(newVnode);
+    //  对比新节点如果是基本数据类型且（数据不同）直接替换
+    if( (newDomType === 'String'||newDomType === 'Number'||
+        newDomType === 'Boolean'||newDomType === 'Null'||
+        newDomType === 'Undefined')&& oldVnode!=newVnode ){
+        // 元素类型不同直接替换
+        return;
+    }
+    //  对比旧节点如果是基本数据类型且（数据不同）直接替换
+    if( (oldDomType === 'String'||oldDomType === 'Number'||
+        oldDomType === 'Boolean'||oldDomType === 'Null'||
+        oldDomType === 'Undefined')&& oldVnode!=newVnode ){
+        // 元素类型不同直接替换
+        return;
+    }
+
+    if(oldDomType==="Object"&&newDomType==="Object"){
+        if(oldVnode.tag===newVnode.tag&&getType(newVnode.tag)=="Function"){
+            //  如果新旧 component attrs 值没变说明没更新
+            if (!isObjectValueEqual(oldVnode.attrs,newVnode.attrs)){
+                //  递归遍历
+            }
+        }else if(oldVnode.tag===newVnode.tag){
+            //  递归遍历
+            diffVnode(oldVnode,newVnode,dom);
+        } else{
+            //  元素类型不同直接替换
+        }
+    }else if(oldDomType==="Array"&&newDomType==="Array"){
+        //  递归遍历
+    }else if(newDomType==="Array"||newDomType==="Object"){
+        //  元素类型不同直接替换
+    }
+}
+
+function diffVnode(oldVirtualDOM,newVirtualDOM,dom){
+    console.log("oldVirtualDOM:",oldVirtualDOM);
+    console.log("newVirtualDOM:",newVirtualDOM);
+    console.log("dom:",dom,"dom.childNodes:",dom.childNodes);
+    // const tag  = newVirtualDOM.childrens[8].tag;
+    // console.log(tag,tag.base,VirtualDOM)
     if(oldVirtualDOM.tag === newVirtualDOM.tag){
         for ( let i=0; i < oldVirtualDOM.childrens.length; i++){
-            const oldDom = oldVirtualDOM.childrens[i];
-            const newDom = newVirtualDOM.childrens[i];
-            /*  如果字符串、数字,false 等基本数据类型相等， 则跳出循环  */
-            if(oldDom==newDom){
-                continue;
-            }
-            const oldDomType = getType(oldDom);
-            const newDomType = getType(newDom);
-            //  String Number Boolean Null Undefined
-            if( newDomType === 'String'||newDomType === 'Number'||newDomType === 'Boolean'||newDomType === 'Null'||newDomType === 'Undefined' ){
-
-            }
+            const oldVnode = oldVirtualDOM.childrens[i];
+            const newVnode = newVirtualDOM.childrens[i];
+            const childDom = dom.childNodes[i];
+            diffChildVnode(oldVnode,newVnode,childDom);
         }
-        diffAttribute(dom,newVirtualDOM)
+        diffAttribute(dom,newVirtualDOM);
     }else{
         dom.parentNode.replaceChild(_render(newVirtualDOM),dom);
     }
+}
+
+export function diffVirtualDOM(oldVirtualDOM, newVirtualDOM,dom) {
+    diffVnode(oldVirtualDOM, newVirtualDOM,dom);
 }
 
 // export function diffNode(dom, vnode) {

@@ -1,5 +1,5 @@
 import React from '../react'
-import {diff, diffNode} from './diff'
+import {diffVirtualDOM} from './diff'
 
 const ReactDom = {
     render
@@ -86,7 +86,7 @@ export function renderComponent(comp) {
     const renderer = comp.render(); //  返回jsx（vdom节点） 对象
     if(comp.base){  //  如果真实DOM 存在！
         //  传入 旧虚拟DOM 和 新虚拟DOM
-        diffNode(comp.VirtualDOM,renderer,comp.base);
+        diffVirtualDOM(comp.VirtualDOM,renderer,comp.base);
         // diffNode(comp.base,renderer);
         // console.log( comp.base,renderer );
         // base = comp.base
