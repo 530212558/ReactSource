@@ -1,6 +1,29 @@
 import { setAttribute, setComponentProps, createComponent,_render } from './index'
 import { getType,isObjectValueEqual } from '../utils'
 
+export function diffVirtualDOM(oldVirtualDOM, newVirtualDOM,dom) {
+    diffVnode(oldVirtualDOM, newVirtualDOM,dom);
+}
+
+function diffVnode(oldVirtualDOM,newVirtualDOM,dom){
+    console.log("oldVirtualDOM:",oldVirtualDOM);
+    console.log("newVirtualDOM:",newVirtualDOM);
+    console.log("dom:",dom,"dom.childNodes:",dom.childNodes);
+    // const tag  = newVirtualDOM.childrens[8].tag;
+    // console.log(tag,tag.base,VirtualDOM)
+    if(oldVirtualDOM.tag === newVirtualDOM.tag){
+        for ( let i=0; i < oldVirtualDOM.childrens.length; i++){
+            const oldVnode = oldVirtualDOM.childrens[i];
+            const newVnode = newVirtualDOM.childrens[i];
+            const childDom = dom.childNodes[i];
+            diffChildVnode(oldVnode,newVnode,childDom);
+        }
+        diffAttribute(dom,newVirtualDOM);
+    }else{
+        dom.parentNode.replaceChild(_render(newVirtualDOM),dom);
+    }
+}
+
 function diffChildVnode(oldVnode,newVnode,dom){
     /*  如果字符串、数字,false 等基本数据类型相等， 则跳出循环  */
     if(oldVnode==newVnode){
@@ -40,29 +63,6 @@ function diffChildVnode(oldVnode,newVnode,dom){
     }else if(newDomType==="Array"||newDomType==="Object"){
         //  元素类型不同直接替换
     }
-}
-
-function diffVnode(oldVirtualDOM,newVirtualDOM,dom){
-    console.log("oldVirtualDOM:",oldVirtualDOM);
-    console.log("newVirtualDOM:",newVirtualDOM);
-    console.log("dom:",dom,"dom.childNodes:",dom.childNodes);
-    // const tag  = newVirtualDOM.childrens[8].tag;
-    // console.log(tag,tag.base,VirtualDOM)
-    if(oldVirtualDOM.tag === newVirtualDOM.tag){
-        for ( let i=0; i < oldVirtualDOM.childrens.length; i++){
-            const oldVnode = oldVirtualDOM.childrens[i];
-            const newVnode = newVirtualDOM.childrens[i];
-            const childDom = dom.childNodes[i];
-            diffChildVnode(oldVnode,newVnode,childDom);
-        }
-        diffAttribute(dom,newVirtualDOM);
-    }else{
-        dom.parentNode.replaceChild(_render(newVirtualDOM),dom);
-    }
-}
-
-export function diffVirtualDOM(oldVirtualDOM, newVirtualDOM,dom) {
-    diffVnode(oldVirtualDOM, newVirtualDOM,dom);
 }
 
 // export function diffNode(dom, vnode) {
