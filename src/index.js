@@ -97,4 +97,4 @@ class Profile extends React.Component{
     }
 }
 // console.log(<Profile title="321" />);
-ReactDom.render(<Profile title="321" />,document.getElementById("app"))
+ReactDom.render(<Profile title="321" />,document.getElementById("app"));

@@ -2,21 +2,37 @@ import { setAttribute, setComponentProps, createComponent,_render } from './inde
 import { getType,isObjectValueEqual } from '../utils'
 
 export function diffVirtualDOM(oldVirtualDOM, newVirtualDOM,dom) {
-    diffVnode(oldVirtualDOM, newVirtualDOM,dom);
+    const patch = [];
+    diffVnode(oldVirtualDOM, newVirtualDOM,dom,patch);
+    patch.forEach((item)=>{
+        item();
+    })
 }
 
-function diffVnode(oldVirtualDOM,newVirtualDOM,dom){
+function diffVnode(oldVirtualDOM,newVirtualDOM,dom,patch){
     console.log("oldVirtualDOM:",oldVirtualDOM);
     console.log("newVirtualDOM:",newVirtualDOM);
-    console.log("dom:",dom,"dom.childNodes:",dom.childNodes);
+    console.log("dom:",dom);
+    console.log("dom.childNodes:",dom.childNodes);
     // const tag  = newVirtualDOM.childrens[8].tag;
     // console.log(tag,tag.base,VirtualDOM)
     if(oldVirtualDOM.tag === newVirtualDOM.tag){
+        let domIndex = { key:0 };
         for ( let i=0; i < oldVirtualDOM.childrens.length; i++){
             const oldVnode = oldVirtualDOM.childrens[i];
             const newVnode = newVirtualDOM.childrens[i];
-            const childDom = dom.childNodes[i];
-            diffChildVnode(oldVnode,newVnode,childDom);
+
+            const oldDomType = getType(oldVnode);
+            const newDomType = getType(newVnode);
+            if(oldDomType==="Array"&&newDomType==="Array"){
+                //  递归遍历
+                diffListVnode(oldVnode,newVnode,domIndex,patch);
+            }else{
+
+                const childDom = dom.childNodes[domIndex.key];
+                diffChildVnode(oldVnode,newVnode,childDom,patch);
+                domIndex.key++;
+            }
         }
         diffAttribute(dom,newVirtualDOM);
     }else{
@@ -24,17 +40,21 @@ function diffVnode(oldVirtualDOM,newVirtualDOM,dom){
     }
 }
 
-function diffChildVnode(oldVnode,newVnode,dom){
+function diffChildVnode(oldVnode,newVnode,dom,patch){
     /*  如果字符串、数字,false 等基本数据类型相等， 则跳出循环  */
     if(oldVnode==newVnode){
         return;
     }
     const oldDomType = getType(oldVnode);
     const newDomType = getType(newVnode);
+    console.log("diffChildVnode:",oldVnode,newVnode,'dom:',dom)
     //  对比新节点如果是基本数据类型且（数据不同）直接替换
     if( (newDomType === 'String'||newDomType === 'Number'||
         newDomType === 'Boolean'||newDomType === 'Null'||
         newDomType === 'Undefined')&& oldVnode!=newVnode ){
+        patch.push(function () {
+            dom.parentNode.replaceChild(_render(newVnode),dom);
+        })
         // 元素类型不同直接替换
         return;
     }
@@ -42,6 +62,9 @@ function diffChildVnode(oldVnode,newVnode,dom){
     if( (oldDomType === 'String'||oldDomType === 'Number'||
         oldDomType === 'Boolean'||oldDomType === 'Null'||
         oldDomType === 'Undefined')&& oldVnode!=newVnode ){
+        patch.push(function () {
+            dom.parentNode.replaceChild(_render(newVnode),dom);
+        })
         // 元素类型不同直接替换
         return;
     }
@@ -51,17 +74,33 @@ function diffChildVnode(oldVnode,newVnode,dom){
             //  如果新旧 component attrs 值没变说明没更新
             if (!isObjectValueEqual(oldVnode.attrs,newVnode.attrs)){
                 //  递归遍历
+                // if(newVnode.tag.render){
+                //     console.log(newVnode.tag.render(newVnode.attrs));
+                // }else{
+                //     console.log(newVnode.tag(newVnode.attrs));
+                // }
             }
         }else if(oldVnode.tag===newVnode.tag){
             //  递归遍历
-            diffVnode(oldVnode,newVnode,dom);
+            diffVnode(oldVnode,newVnode,dom,patch);
         } else{
             //  元素类型不同直接替换
+            patch.push(function () {
+                dom.parentNode.replaceChild(_render(newVnode),dom);
+            })
         }
-    }else if(oldDomType==="Array"&&newDomType==="Array"){
-        //  递归遍历
-    }else if(newDomType==="Array"||newDomType==="Object"){
+    }else if(oldDomType!==newDomType){
         //  元素类型不同直接替换
+        patch.push(function () {
+            dom.parentNode.replaceChild(_render(newVnode),dom);
+        })
+    }
+}
+
+function diffListVnode(oldVnode,newVnode,domIndex){
+    // console.log(oldVnode,newVnode,domIndex)
+    for ( let i=0; i < oldVnode.length; i++){
+        domIndex.key++;
     }
 }
 

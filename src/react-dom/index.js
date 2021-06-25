@@ -83,21 +83,22 @@ export function createComponent(comp, props) {
 export function renderComponent(comp) {
     let base;
     console.log(comp,'renderComponent==>3  请求vdom 节点数据')
-    const renderer = comp.render(); //  返回jsx（vdom节点） 对象
+    const newVirtualDOM = comp.render(); //  返回jsx（vdom节点） 对象
     if(comp.base){  //  如果真实DOM 存在！
         //  传入 旧虚拟DOM 和 新虚拟DOM
-        diffVirtualDOM(comp.VirtualDOM,renderer,comp.base);
-        // diffNode(comp.base,renderer);
-        // console.log( comp.base,renderer );
+        diffVirtualDOM(comp.VirtualDOM,newVirtualDOM,comp.base);
+        comp.VirtualDOM = newVirtualDOM;
+        // diffNode(comp.base,newVirtualDOM);
+        // console.log( comp.base,newVirtualDOM );
         // base = comp.base
     }else {
-        console.log(renderer,'生成vdom树==>4');
-        base = _render(renderer);
+        console.log(newVirtualDOM,'生成vdom树==>4');
+        base = _render(newVirtualDOM);
         // console.log('------------------',comp,'--------------------')
         /*  保存虚拟 DOM  */
-        comp.VirtualDOM = renderer;
+        comp.VirtualDOM = newVirtualDOM;
         console.log(base,'_render渲染到DOM节点，并重新插入到页面==>5');
-        // base =diffNode(comp.base,renderer);
+        // base =diffNode(comp.base,newVirtualDOM);
         comp.base = base;
 
     }
