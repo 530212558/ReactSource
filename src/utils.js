@@ -31,9 +31,7 @@ export function isObjectValueEqual(obj1, obj2) {
         // 故先判断两边都有相同键名
         if(!obj2.hasOwnProperty(propName)) return false
         if ((propA instanceof Object)) {
-            if (isObjectValueEqual(propA, propB)) {
-                // return true     这里不能return ,后面的对象还没判断
-            } else {
+            if (!isObjectValueEqual(propA, propB)) {
                 return false
             }
         } else if (propA !== propB) {

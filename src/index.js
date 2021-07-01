@@ -70,11 +70,10 @@ class Profile extends React.Component{
                     this.state.num%2==0&&<input type="text" value={`2134566`} />
                 }
                 {
-                    [1,2].map((item)=><span key={item}>item</span>)
+                    [1,2].map((item)=><span>item{item}</span>)
                 }
                 <img src="avatar.png" className={`profile${this.state.num}`} />
                 <h3 >  {this.props.title} num:{this.state.num} </h3>
-                {/* 123 */}
                 <div className={`contaioner`}>
                     header
                     {
@@ -90,7 +89,7 @@ class Profile extends React.Component{
                         ))
                     }
                 </div>
-                <Func num={ this.state.num } title="王生"></Func>
+                <Func num={ this.state.num } title="王生"/>
                 <Child num={ this.state.num } title="王生" />
             </div>
         );

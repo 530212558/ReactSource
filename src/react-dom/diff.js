@@ -1,4 +1,4 @@
-import { setAttribute, setComponentProps, createComponent,_render } from './index'
+import { setAttribute, setComponentProps, createComponent, _render, renderFunction } from './index'
 import { getType,isObjectValueEqual } from '../utils'
 
 export function diffVirtualDOM(oldVirtualDOM, newVirtualDOM,dom) {
@@ -9,14 +9,17 @@ export function diffVirtualDOM(oldVirtualDOM, newVirtualDOM,dom) {
     })
 }
 
-function diffVnode(oldVirtualDOM,newVirtualDOM,dom,patch){
-    console.log("oldVirtualDOM:",oldVirtualDOM);
-    console.log("newVirtualDOM:",newVirtualDOM);
-    console.log("dom:",dom);
-    console.log("dom.childNodes:",dom.childNodes);
+export function diffVnode(oldVirtualDOM,newVirtualDOM,dom,patch){
+    // console.log("oldVirtualDOM:",oldVirtualDOM);
+    // console.log("newVirtualDOM:",newVirtualDOM);
+    // console.log("dom:",dom);
+    // console.log("dom.childNodes:",dom.childNodes);
     // const tag  = newVirtualDOM.childrens[8].tag;
     // console.log(tag,tag.base,VirtualDOM)
     if(oldVirtualDOM.tag === newVirtualDOM.tag){
+        if(isObjectValueEqual(oldVirtualDOM.attrs,newVirtualDOM.attrs)===false){
+            diffAttribute(dom,newVirtualDOM);
+        }
         let domIndex = { key:0 };
         for ( let i=0; i < oldVirtualDOM.childrens.length; i++){
             const oldVnode = oldVirtualDOM.childrens[i];
@@ -26,7 +29,7 @@ function diffVnode(oldVirtualDOM,newVirtualDOM,dom,patch){
             const newDomType = getType(newVnode);
             if(oldDomType==="Array"&&newDomType==="Array"){
                 //  递归遍历
-                diffListVnode(oldVnode,newVnode,domIndex,patch);
+                diffListVnode(oldVnode,newVnode,domIndex,dom,patch);
             }else{
 
                 const childDom = dom.childNodes[domIndex.key];
@@ -34,7 +37,6 @@ function diffVnode(oldVirtualDOM,newVirtualDOM,dom,patch){
                 domIndex.key++;
             }
         }
-        diffAttribute(dom,newVirtualDOM);
     }else{
         dom.parentNode.replaceChild(_render(newVirtualDOM),dom);
     }
@@ -47,7 +49,10 @@ function diffChildVnode(oldVnode,newVnode,dom,patch){
     }
     const oldDomType = getType(oldVnode);
     const newDomType = getType(newVnode);
-    console.log("diffChildVnode:",oldVnode,newVnode,'dom:',dom)
+    // console.log("diffChildVnode:",oldVnode,newVnode,'dom:',dom)
+    // console.log("oldVnode:",oldVnode);
+    // console.log("newVnode:",newVnode);
+    // console.log("dom:",dom);
     //  对比新节点如果是基本数据类型且（数据不同）直接替换
     if( (newDomType === 'String'||newDomType === 'Number'||
         newDomType === 'Boolean'||newDomType === 'Null'||
@@ -74,12 +79,18 @@ function diffChildVnode(oldVnode,newVnode,dom,patch){
             //  如果新旧 component attrs 值没变说明没更新
             if (!isObjectValueEqual(oldVnode.attrs,newVnode.attrs)){
                 //  递归遍历
-                // if(newVnode.tag.render){
-                //     console.log(newVnode.tag.render(newVnode.attrs));
-                // }else{
-                //     console.log(newVnode.tag(newVnode.attrs));
-                // }
+                //  判断是（class）组件还是（function）组件
+                if(newVnode.tag.prototype && newVnode.tag.prototype.render){
+                    // console.log(oldVnode,newVnode)
+                    setComponentProps(oldVnode.ref,newVnode.attrs);
+                    // console.log(newVnode.tag.render(newVnode.attrs));
+                }else{
+                    // console.log(oldVnode,newVnode)
+                    // console.log(newVnode.tag(newVnode.attrs));
+                    renderFunction(oldVnode.ref,newVnode,patch)
+                }
             }
+            newVnode.ref = oldVnode.ref;
         }else if(oldVnode.tag===newVnode.tag){
             //  递归遍历
             diffVnode(oldVnode,newVnode,dom,patch);
@@ -97,9 +108,11 @@ function diffChildVnode(oldVnode,newVnode,dom,patch){
     }
 }
 
-function diffListVnode(oldVnode,newVnode,domIndex){
-    // console.log(oldVnode,newVnode,domIndex)
-    for ( let i=0; i < oldVnode.length; i++){
+function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
+    console.log(oldVirtualDOM,newVirtualDOM,domIndex,dom,dom.childNodes,patch)
+    // console.log(oldVnode,newVnode);
+    for ( let i=0; i < oldVirtualDOM.length; i++){
+        console.log(oldVirtualDOM[i])
         domIndex.key++;
     }
 }

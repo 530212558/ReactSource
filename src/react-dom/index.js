@@ -1,5 +1,5 @@
 import React from '../react'
-import {diffVirtualDOM} from './diff'
+import { diffVirtualDOM, diffVnode } from './diff'
 
 const ReactDom = {
     render
@@ -17,7 +17,7 @@ function render(vnode, container, dom) {
 * 根据 vdom 创建真实 DOM
 * */
 export function _render(vnode) {
-    if (typeof vnode === undefined || typeof vnode === null) '';
+    if (typeof vnode === undefined || typeof vnode === null) return document.createTextNode('');
     if (typeof vnode === 'boolean') return document.createTextNode('');
     /*如果 vnode 是字符串*/
     if (typeof vnode === 'string' || typeof vnode === 'number') {
@@ -33,7 +33,8 @@ export function _render(vnode) {
         console.log(vnode,'function==>1');
         //  1.创建组件
         const comp = createComponent(tag, attrs);
-        //  2.设置组件的属性
+        vnode.ref = comp;
+            //  2.设置组件的属性
         setComponentProps(comp, attrs);
         //  3.组件渲染节点对象返回
         // console.log(comp.base)
@@ -80,17 +81,14 @@ export function createComponent(comp, props) {
     return inst;
 }
 
-export function renderComponent(comp) {
+export function renderClass(comp) {
     let base;
-    console.log(comp,'renderComponent==>3  请求vdom 节点数据')
+    // console.log(comp,'renderClass==>3  请求vdom 节点数据')
     const newVirtualDOM = comp.render(); //  返回jsx（vdom节点） 对象
     if(comp.base){  //  如果真实DOM 存在！
         //  传入 旧虚拟DOM 和 新虚拟DOM
         diffVirtualDOM(comp.VirtualDOM,newVirtualDOM,comp.base);
         comp.VirtualDOM = newVirtualDOM;
-        // diffNode(comp.base,newVirtualDOM);
-        // console.log( comp.base,newVirtualDOM );
-        // base = comp.base
     }else {
         console.log(newVirtualDOM,'生成vdom树==>4');
         base = _render(newVirtualDOM);
@@ -111,25 +109,30 @@ export function renderComponent(comp) {
     } else if (!comp.base && comp.componentDidMount) {
         comp.componentDidMount();
     }
-    //  节点替换
-    // if(comp.base&&comp.base.parentNode){
-    //   // console.log(comp.base.parentNode)
-    //   comp.base.parentNode.replaceChild(base,comp.base)
-    // }
-    // comp.base = base;
+}
+
+export function renderFunction(comp,newVnode,patch) {
+    // console.log(comp,'renderFunction==>3  请求vdom 节点数据')
+    comp.props = newVnode.attrs;
+    const newVirtualDOM = newVnode.tag(newVnode.attrs) //  返回jsx（vdom节点） 对象
+
+    diffVnode(comp.VirtualDOM,newVirtualDOM,comp.base,patch);
+    comp.VirtualDOM = newVirtualDOM;
 }
 
 export function setComponentProps(comp, props) {
-    if (!comp.base) { //  如果组件还没有执行过 render 方法。
+    //  如果组件还没有执行过 render 方法。
+    if (!comp.base) {
         comp.componentWillMount && comp.componentWillMount();
-    } else if (comp.componentWillReveiveProps) {  //  已经执行过渲染方法。
+    } else if (comp.componentWillReveiveProps) {
+        //  已经执行过渲染方法。
         comp.componentWillReveiveProps();
     }
     //  设置组件属性
     comp.props = props;
     // console.log(comp);
     //  渲染组件
-    renderComponent(comp);
+    renderClass(comp);
 }
 
 export function setAttribute(dom, key, value) {

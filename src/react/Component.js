@@ -1,4 +1,4 @@
-import { renderComponent } from '../react-dom'
+import { renderClass } from '../react-dom'
 class Component {
   constructor(props = {}){
     // console.log(props)
@@ -11,7 +11,7 @@ class Component {
     //  渲染组件
     // console.log(this);
       // this.base.outerHTML = '<div class="321"><img src="avatar.png" class="profile"><h3> 321 num:6 </h3></div>'
-    renderComponent(this);
+    renderClass(this);
   }
 }
 

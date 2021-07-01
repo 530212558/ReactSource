@@ -7,7 +7,11 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js'
     },
+    devServer: {
+        port:8006,
+    },
     devtool:"inline-source-map",
+
     module: {
         rules: [
             {
