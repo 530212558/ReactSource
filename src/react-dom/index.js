@@ -85,6 +85,7 @@ export function renderClass(comp) {
     let base;
     // console.log(comp,'renderClass==>3  请求vdom 节点数据')
     const newVirtualDOM = comp.render(); //  返回jsx（vdom节点） 对象
+    // console.log('newVirtualDOM:',newVirtualDOM)
     if(comp.base){  //  如果真实DOM 存在！
         //  传入 旧虚拟DOM 和 新虚拟DOM
         diffVirtualDOM(comp.VirtualDOM,newVirtualDOM,comp.base);

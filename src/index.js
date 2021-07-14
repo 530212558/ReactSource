@@ -57,8 +57,19 @@ class Profile extends React.Component{
     }
 
     handlerClick =()=>{
+        // 基本均衡获取 0 到 10 的随机整数，其中获取最小值 0 和最大值 10 的几率少一半。
+        const num  = Math.round(Math.random()*10);
+        let array = [];
+        for (let i =1;i<num;i++){
+            array.push(i);
+        }
+        // array = [4,3,2,1]
+        array = array.sort(() => (Math.random() - 0.5))
+        console.clear();
+        console.log(array);
         this.setState({
-            num:this.state.num+=1
+            num:this.state.num+=1,
+            array
         })
     }
 
@@ -79,12 +90,13 @@ class Profile extends React.Component{
                     {
                         this.state.array.map((item,key)=>(
                             <div key={item}>
-                                <span>item</span>:{item}{this.state.num!=5&&this.state.num}
-                                {
-                                    this.state.array.map((item)=>(
-                                        <span key={item}>{item}</span>
-                                    ))
-                                }
+                                {this.state.num!=5&&this.state.num}=><span>id</span>:{item}
+                                {/*<span>item=></span>:*/}
+                                {/*{*/}
+                                {/*    this.state.array.map((item)=>(*/}
+                                {/*        <span>{item}</span>*/}
+                                {/*    ))*/}
+                                {/*}*/}
                             </div>
                         ))
                     }

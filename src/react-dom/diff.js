@@ -109,12 +109,75 @@ function diffChildVnode(oldVnode,newVnode,dom,patch){
 }
 
 function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
-    console.log(oldVirtualDOM,newVirtualDOM,domIndex,dom,dom.childNodes,patch)
+    console.log(oldVirtualDOM.map(item=>item.attrs),newVirtualDOM.map(item=>item.attrs),
+        domIndex,dom,dom.childNodes,patch)
+    const num = domIndex.key;
     // console.log(oldVnode,newVnode);
+    const newVirtualDOMCopy = JSON.parse(JSON.stringify(newVirtualDOM));
+    let removeNewVirtualDOMCopys = [];
+    const newVirtualDOMId = {};
+    newVirtualDOMCopy.forEach((item,index)=>{
+        if(item.attrs.key){
+            newVirtualDOMId[item.attrs.key] = {index,value:item};
+        }
+    })
+    console.log("newVirtualDOMId:",newVirtualDOMId);
+    const Add = [];
+    const Delete = [];
+    const Update = [];
+    const Move = [];
+
+    // console.log('newVirtualDOMId: ',newVirtualDOMId);
     for ( let i=0; i < oldVirtualDOM.length; i++){
-        console.log(oldVirtualDOM[i])
+        const childNode = dom.childNodes[domIndex.key];
+        const oldVnode = oldVirtualDOM[i];
+        // console.log(`i：${i}`,oldVnode);
+        if(oldVnode.attrs.key){
+            const newItemVirtual = newVirtualDOMId[oldVnode.attrs.key];
+            if (!newItemVirtual){
+                Delete.push(function () {
+                    if(childNode.parentNode){
+                        childNode.parentNode.removeChild(childNode);
+                    }
+                })
+            }else if(newItemVirtual.index!==i){
+
+                diffVnode(oldVnode,newItemVirtual.value,childNode,Update);
+                Move.push(function (){
+                    let number = newItemVirtual.index+num;
+                    if(i<newItemVirtual.index) number++;
+                    const refNode = number>dom.childNodes.length?null: dom.childNodes[number];
+                    // console.log(childNode,refNode,newItemVirtual.value
+                    //     ,number,dom.childNodes);
+                    console.log(childNode,number,refNode);
+                    dom.insertBefore(childNode,refNode);
+
+                });
+                removeNewVirtualDOMCopys.push(newItemVirtual.index);
+            }else if (newItemVirtual.index===i){
+                diffVnode(oldVnode,newItemVirtual.value,childNode,Update);
+                removeNewVirtualDOMCopys.push(newItemVirtual.index);
+            }
+            // console.log(newItemVirtua)
+        }else{
+            removeNewVirtualDOMCopys.push(i);
+        }
         domIndex.key++;
     }
+    removeNewVirtualDOMCopys = removeNewVirtualDOMCopys.sort((a,b)=>b-a);
+    // console.log("removeNewVirtualDOMCopys:",removeNewVirtualDOMCopys);
+    removeNewVirtualDOMCopys.forEach(item=>{
+        newVirtualDOMCopy.splice(item,1);
+    });
+    console.log('Add newVirtualDOMCopy: ',newVirtualDOMCopy);
+    newVirtualDOMCopy.forEach(item=>{
+        const newItemVirtual = newVirtualDOMId[item.attrs.key];
+        Add.push(function () {
+            dom.insertBefore(_render(item),dom.childNodes[newItemVirtual.index+num]);
+        });
+    });
+
+    patch.push(...Add,...Delete,...Move,...Update)
 }
 
 // export function diffNode(dom, vnode) {
