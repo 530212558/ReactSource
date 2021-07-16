@@ -113,6 +113,99 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
         domIndex,dom,dom.childNodes,patch)
     const num = domIndex.key;
     // console.log(oldVnode,newVnode);
+    const oldVirtualDOMCopy = JSON.parse(JSON.stringify(oldVirtualDOM));
+    let removeOldVirtualDOMCopys = [];
+    const oldVirtualDOMId = {};
+    oldVirtualDOMCopy.forEach((item,index)=>{
+        if(item.attrs.key){
+            oldVirtualDOMId[item.attrs.key] = {index,value:item};
+        }
+    })
+    console.log("oldVirtualDOMId:",oldVirtualDOMId);
+    const Add = [];
+    const Move = [];
+    //  是否被移动
+    const IsItMoved = [];
+    const Delete = [];
+    const Update = [];
+
+    // console.log('newVirtualDOMId: ',newVirtualDOMId);
+    for ( let i=0; i < newVirtualDOM.length; i++){
+        const newVnode = newVirtualDOM[i];
+        // const oldVnode = oldVirtualDOM[i];
+        // console.log(`i：${i}`,newVnode);
+        if(newVnode.attrs.key){
+            const oldItemVirtual = oldVirtualDOMId[newVnode.attrs.key];
+            let childNode;
+            if(oldItemVirtual){
+                childNode = dom.childNodes[oldItemVirtual.index+num];
+            }
+            if(!oldItemVirtual){
+                Add.push(function () {
+                    let number = i+num;
+                    const refNode = number>dom.childNodes.length?null: dom.childNodes[number];
+                    const newDom =  _render(newVnode);
+                    console.log("Add: ",newDom,number,refNode);
+                    dom.insertBefore(newDom,refNode);
+                });
+            } else if(oldItemVirtual.index!==i){
+                diffVnode(oldItemVirtual.value,newVnode,childNode,Update);
+                Move.push(function (){
+                    let number = i+num;
+                    if(oldItemVirtual.index<=i) number++;
+                    const refNode = number>dom.childNodes.length?null: dom.childNodes[number];
+                    // console.log(childNode,refNode,oldItemVirtual.value
+                    //     ,number,dom.childNodes);
+                    console.log("Move: ",childNode,number,refNode,'i+num=',i+num,'childNode==refNode:',childNode==refNode);
+                    if(childNode!=refNode){
+                        dom.insertBefore(childNode,refNode);
+                    }
+                });
+                removeOldVirtualDOMCopys.push(oldItemVirtual.index);
+            } else if (oldItemVirtual.index===i){
+                diffVnode(oldItemVirtual.value,newVnode,childNode,Update);
+                const number = i+num;
+                IsItMoved.push(function () {
+                    const refNode = number>dom.childNodes.length?null: dom.childNodes[number];
+                    console.log("IsItMoved: ",childNode,refNode,'i+num=',number,'childNode==refNode:',childNode==refNode);
+                    if(childNode!=refNode){
+                        dom.insertBefore(childNode,refNode);
+                    }
+                });
+                removeOldVirtualDOMCopys.push(oldItemVirtual.index);
+            }
+            // console.log(newItemVirtua)
+        } else{
+            removeOldVirtualDOMCopys.push(i);
+        }
+        domIndex.key++;
+    }
+    removeOldVirtualDOMCopys = removeOldVirtualDOMCopys.sort((a,b)=>b-a);
+    // console.log("removeOldVirtualDOMCopys:",removeOldVirtualDOMCopys);
+    removeOldVirtualDOMCopys.forEach(item=>{
+        oldVirtualDOMCopy.splice(item,1);
+    });
+    // console.log('Delete oldVirtualDOMCopy: ',oldVirtualDOMCopy);
+    for (let i=oldVirtualDOMCopy.length;i>0;--i){
+        const item = oldVirtualDOMCopy[i-1];
+        const oldItemVirtual = oldVirtualDOMId[item.attrs.key];
+        const childNode = dom.childNodes[oldItemVirtual.index+num];
+        console.log("delete oldItem:",childNode);
+        Delete.push(function () {
+            if(childNode.parentNode){
+                childNode.parentNode.removeChild(childNode);
+            }
+        })
+    }
+
+    patch.push(...Delete,...Move,...Add,...IsItMoved,...Update)
+}
+
+function diffListVnode2(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
+    console.log(oldVirtualDOM.map(item=>item.attrs),newVirtualDOM.map(item=>item.attrs),
+        domIndex,dom,dom.childNodes,patch)
+    const num = domIndex.key;
+    // console.log(oldVnode,newVnode);
     const newVirtualDOMCopy = JSON.parse(JSON.stringify(newVirtualDOM));
     let removeNewVirtualDOMCopys = [];
     const newVirtualDOMId = {};

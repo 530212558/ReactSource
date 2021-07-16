@@ -28,7 +28,7 @@ class Profile extends React.Component{
         super();
         this.state = {
             num:5,
-            array:[1,2,3,4]
+            array:[4,1,2,6,5,7,3]
         }
     }
 
@@ -63,8 +63,8 @@ class Profile extends React.Component{
         for (let i =1;i<num;i++){
             array.push(i);
         }
-        // array = [4,3,2,1]
         array = array.sort(() => (Math.random() - 0.5))
+        // array = [3, 8, 5, 6, 2, 4, 1, 7]
         console.clear();
         console.log(array);
         this.setState({
