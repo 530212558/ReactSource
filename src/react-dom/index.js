@@ -6,10 +6,6 @@ const ReactDom = {
 }
 
 function render(vnode, container, dom) {
-    // console.log(vnode,container,dom)
-    // return diff(dom,vnode,container);
-    // console.log(vnode,'==>',1)
-    // vnode&&container.appendChild(_render(vnode));
     return container.appendChild(_render(vnode));
 }
 
