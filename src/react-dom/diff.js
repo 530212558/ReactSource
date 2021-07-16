@@ -132,9 +132,9 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
     // console.log('newVirtualDOMId: ',newVirtualDOMId);
     for ( let i=0; i < newVirtualDOM.length; i++){
         const newVnode = newVirtualDOM[i];
-        // const oldVnode = oldVirtualDOM[i];
+        const oldVnode = oldVirtualDOM[i];
         // console.log(`i：${i}`,newVnode);
-        if(newVnode.attrs.key){
+        if(newVnode.attrs.key!==undefined){
             const oldItemVirtual = oldVirtualDOMId[newVnode.attrs.key];
             let childNode;
             if(oldItemVirtual){
@@ -175,8 +175,12 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
                 removeOldVirtualDOMCopys.push(oldItemVirtual.index);
             }
             // console.log(newItemVirtua)
-        } else{
+        } else if(oldVnode.attrs.key===undefined){
+            const childNode = dom.childNodes[i+num];
+            diffVnode(oldVnode,newVnode,childNode,Update);
             removeOldVirtualDOMCopys.push(i);
+        } else{
+            
         }
         domIndex.key++;
     }
