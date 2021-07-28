@@ -175,12 +175,12 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
                 removeOldVirtualDOMCopys.push(oldItemVirtual.index);
             }
             // console.log(newItemVirtua)
-        } else if(oldVnode.attrs.key===undefined){
+        } else if(oldVnode.attrs.key===undefined||oldVnode.attrs.key===null){
             const childNode = dom.childNodes[i+num];
             diffVnode(oldVnode,newVnode,childNode,Update);
             removeOldVirtualDOMCopys.push(i);
         } else{
-            
+
         }
         domIndex.key++;
     }
