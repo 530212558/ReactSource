@@ -134,7 +134,7 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
         const newVnode = newVirtualDOM[i];
         const oldVnode = oldVirtualDOM[i];
         // console.log(`i：${i}`,newVnode);
-        if(newVnode.attrs.key!==undefined){
+        if(newVnode.attrs.key!==undefined&&newVnode.attrs.key!==null){
             const oldItemVirtual = oldVirtualDOMId[newVnode.attrs.key];
             let childNode;
             if(oldItemVirtual){
@@ -152,7 +152,7 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
                 diffVnode(oldItemVirtual.value,newVnode,childNode,Update);
                 Move.push(function (){
                     let number = i+num;
-                    if(oldItemVirtual.index<=i) number++;
+                    // if(oldItemVirtual.index<=i) number++;
                     const refNode = number>dom.childNodes.length?null: dom.childNodes[number];
                     // console.log(childNode,refNode,oldItemVirtual.value
                     //     ,number,dom.childNodes);
