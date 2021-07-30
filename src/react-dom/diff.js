@@ -117,7 +117,7 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
     let removeOldVirtualDOMCopys = [];
     const oldVirtualDOMId = {};
     oldVirtualDOMCopy.forEach((item,index)=>{
-        if(item.attrs.key){
+        if(item.attrs.key!==undefined&&item.attrs.key!==null){
             oldVirtualDOMId[item.attrs.key] = {index,value:item};
         }
     })
@@ -180,7 +180,7 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
             diffVnode(oldVnode,newVnode,childNode,Update);
             removeOldVirtualDOMCopys.push(i);
         } else{
-
+            removeOldVirtualDOMCopys.push(i);
         }
         domIndex.key++;
     }
