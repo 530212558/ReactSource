@@ -163,7 +163,7 @@ export function setAttribute(dom, key, value) {
         //   dom[key] = value || '';
         // }
         // console.log(dom)
-        if (value) {
+        if (value!==undefined&&value!==null&&value!=='') {
             dom.setAttribute(key, value);
         } else {
             dom.removeAttribute(key);

@@ -91,7 +91,7 @@ class Profile extends React.Component{
             }
             array.push(rand);
         }
-        
+
         console.clear();
         console.log(array);
         this.setState({
