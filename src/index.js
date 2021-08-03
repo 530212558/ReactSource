@@ -62,35 +62,26 @@ class Profile extends React.Component{
     handlerClick =()=>{
         // 基本均衡获取 0 到 10 的随机整数，其中获取最小值 0 和最大值 10 的几率少一半。
         const num  = Math.round(Math.random()*10);
-        // let array = [];
-        // for (let i =1;i<num;i++){
-        //     array.push(i);
-        // }
-        // array = array.sort(() => (Math.random() - 0.5))
-        // array = [3, 8, 5, 6, 2, 4, 1, 7]
+        let obj = {};
         let oldArray = JSON.parse(JSON.stringify(this.state.array));
 
         // 定义存放生成随机数的数组
         let array=new Array();
         // 循环N次生成随机数
-        for(var i = 0 ; ; i++){
+        while(true){
             // 只生成随机数
             if(array.length<num){
-                generateRandom(10);
+                let rand = parseInt(Math.random()*36);
+                if(!obj[rand]){
+                    // rand = rand<3?null:rand;
+                    array.push(rand);
+                    obj[rand] = 1;
+                }else{
+                    obj[rand]++;
+                }
             }else{
                 break;
             }
-        }
-        // 生成随机数的方法
-        function generateRandom(count){
-            let rand = parseInt(Math.random()*count);
-            for(let i = 0 ; i < array.length; i++){
-                if(array[i] == rand){
-                    return false;
-                }
-            }
-            rand = rand<3?null:rand;
-            array.push(rand);
         }
         console.clear();
         // array = [5, 9, ""];
