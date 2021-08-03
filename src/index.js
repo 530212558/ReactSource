@@ -89,7 +89,7 @@ class Profile extends React.Component{
                     return false;
                 }
             }
-            rand = rand<3?'':rand;
+            rand = rand<3?null:rand;
             array.push(rand);
         }
         console.clear();

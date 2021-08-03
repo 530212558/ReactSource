@@ -1,5 +1,6 @@
 import React from '../react'
 import { diffVirtualDOM, diffVnode } from './diff'
+import {getType} from "../utils";
 
 const ReactDom = {
     render
@@ -13,14 +14,14 @@ function render(vnode, container, dom) {
 * 根据 vdom 创建真实 DOM
 * */
 export function _render(vnode) {
-    if (typeof vnode === undefined || typeof vnode === null) return document.createTextNode('');
-    if (typeof vnode === 'boolean') return document.createTextNode('');
+    const vnodeType = getType(vnode);
+    if (vnodeType === "Undefined" || vnodeType === "Null") return document.createTextNode('');
+    if (vnodeType === 'Boolean') return document.createTextNode('');
     /*如果 vnode 是字符串*/
-    if (typeof vnode === 'string' || typeof vnode === 'number') {
+    if (vnodeType === 'String' || vnodeType === 'Number') {
         //  创建文本节点
         return document.createTextNode(vnode);
     }
-
     //  否则就是虚拟DOM对象
     const {tag, attrs, childrens} = vnode;
 
@@ -49,7 +50,7 @@ export function _render(vnode) {
 
     //  递归渲染 子节点
     childrens && childrens.forEach(child => {
-        if(Object.prototype.toString.call(child) === '[object Array]'){
+        if(getType(child) === 'Array'){
             child.forEach((item)=>{
                 render(item,dom)
             })
