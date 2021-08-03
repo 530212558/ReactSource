@@ -28,7 +28,10 @@ class Profile extends React.Component{
         super();
         this.state = {
             num:5,
-            array:[4,1,2,6,5,7,3]
+            // array: ["",6,"","",4,"",9,7],
+            // array: ["","",7,9,""],
+            array: ["", 7, 3, 5, 8, 9, "", "", 4]
+            // array: [5, 8, "", 6, "", "", "", 7, ""]
         }
     }
 
@@ -65,6 +68,7 @@ class Profile extends React.Component{
         // }
         // array = array.sort(() => (Math.random() - 0.5))
         // array = [3, 8, 5, 6, 2, 4, 1, 7]
+        let oldArray = JSON.parse(JSON.stringify(this.state.array));
 
         // 定义存放生成随机数的数组
         let array=new Array();
@@ -77,23 +81,24 @@ class Profile extends React.Component{
                 break;
             }
         }
-        // 循环遍历随机数数组
-        for(var i = 0 ; i < array.length; i++){
-            console.log(array[i]);
-        }
         // 生成随机数的方法
         function generateRandom(count){
-            var rand = parseInt(Math.random()*count);
-            for(var i = 0 ; i < array.length; i++){
+            let rand = parseInt(Math.random()*count);
+            for(let i = 0 ; i < array.length; i++){
                 if(array[i] == rand){
                     return false;
                 }
             }
+            rand = rand<3?'':rand;
             array.push(rand);
         }
-
         console.clear();
-        console.log(array);
+        // array = [5, 9, ""];
+        // array = [6, 9, 5, 4, "", 8, 7, ""]
+        // array = [7, 8, 3, "", 9, 4, ""]
+        // array = [4, "", 8, "", 6, 9, 7, 3, "", 5]
+        console.log("oldArray:",oldArray);
+        console.log("array:   ",array)
         this.setState({
             num:this.state.num+=1,
             array
@@ -107,9 +112,9 @@ class Profile extends React.Component{
                 {
                     this.state.num%2==0&&<input type="text" value={`2134566`} />
                 }
-                {
-                    [1,2].map((item)=><span>item{item}</span>)
-                }
+                {/*{*/}
+                {/*    [1,2].map((item)=><span>item{item}</span>)*/}
+                {/*}*/}
                 <img src="avatar.png" className={`profile${this.state.num}`} />
                 <h3 >  {this.props.title} num:{this.state.num} </h3>
                 <div className={`contaioner`}>

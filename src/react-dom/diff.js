@@ -109,6 +109,7 @@ function diffChildVnode(oldVnode,newVnode,dom,patch){
 }
 
 function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
+    console.log(oldVirtualDOM,newVirtualDOM);
     console.log(oldVirtualDOM.map(item=>item.attrs),newVirtualDOM.map(item=>item.attrs),
         domIndex,dom,dom.childNodes,patch)
     const num = domIndex.key;
@@ -117,11 +118,20 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
     let removeOldVirtualDOMCopys = [];
     const oldVirtualDOMId = {};
     oldVirtualDOMCopy.forEach((item,index)=>{
-        if(item.attrs.key!==undefined&&item.attrs.key!==null){
+        if(item.attrs.key||item.attrs.key===0){
             oldVirtualDOMId[item.attrs.key] = {index,value:item};
+        }else{
+            item.index = index;
         }
     })
-    console.log("oldVirtualDOMId:",oldVirtualDOMId);
+    // console.log("oldVirtualDOMId:",oldVirtualDOMId);
+    const newVirtualDOMId = {};
+    newVirtualDOM.forEach((item,index)=>{
+        if(item.attrs.key||item.attrs.key===0){
+            newVirtualDOMId[item.attrs.key] = {index,value:item};
+        }
+    })
+    // console.log("newVirtualDOMId:",newVirtualDOMId);
     const Add = [];
     const Move = [];
     //  是否被移动
@@ -129,33 +139,41 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
     const Delete = [];
     const Update = [];
 
-    // console.log('newVirtualDOMId: ',newVirtualDOMId);
+    function onAdd(number,newVnode) {
+        Add.push(function () {
+            const refNode = number>dom.childNodes.length?null: dom.childNodes[number];
+            const newDom =  _render(newVnode);
+            console.log("Add: ",newDom,number,refNode);
+            dom.insertBefore(newDom,refNode);
+        });
+    }
+    function onIsItMoved(number,newNode) {
+        IsItMoved.push(function () {
+            const refNode = number>dom.childNodes.length?null: dom.childNodes[number];
+            console.log("IsItMoved: ",newNode,refNode,'i+num=',number,'childNode==refNode:',newNode==refNode);
+            if(newNode!=refNode){
+                dom.insertBefore(newNode,refNode);
+            }
+        });
+    }
+
     for ( let i=0; i < newVirtualDOM.length; i++){
         const newVnode = newVirtualDOM[i];
         const oldVnode = oldVirtualDOM[i];
-        // console.log(`i：${i}`,newVnode);
-        if(newVnode.attrs.key!==undefined&&newVnode.attrs.key!==null){
+        // console.log(`i：${i}`,oldVnode);
+        const number = i+num;
+        if(newVnode.attrs.key||newVnode.attrs.key===0){
             const oldItemVirtual = oldVirtualDOMId[newVnode.attrs.key];
             let childNode;
             if(oldItemVirtual){
                 childNode = dom.childNodes[oldItemVirtual.index+num];
             }
             if(!oldItemVirtual){
-                Add.push(function () {
-                    let number = i+num;
-                    const refNode = number>dom.childNodes.length?null: dom.childNodes[number];
-                    const newDom =  _render(newVnode);
-                    console.log("Add: ",newDom,number,refNode);
-                    dom.insertBefore(newDom,refNode);
-                });
+                onAdd(number,newVnode);
             } else if(oldItemVirtual.index!==i){
                 diffVnode(oldItemVirtual.value,newVnode,childNode,Update);
                 Move.push(function (){
-                    let number = i+num;
-                    // if(oldItemVirtual.index<=i) number++;
                     const refNode = number>dom.childNodes.length?null: dom.childNodes[number];
-                    // console.log(childNode,refNode,oldItemVirtual.value
-                    //     ,number,dom.childNodes);
                     console.log("Move: ",childNode,number,refNode,'i+num=',i+num,'childNode==refNode:',childNode==refNode);
                     if(childNode!=refNode){
                         dom.insertBefore(childNode,refNode);
@@ -164,41 +182,50 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
                 removeOldVirtualDOMCopys.push(oldItemVirtual.index);
             } else if (oldItemVirtual.index===i){
                 diffVnode(oldItemVirtual.value,newVnode,childNode,Update);
-                const number = i+num;
-                IsItMoved.push(function () {
-                    const refNode = number>dom.childNodes.length?null: dom.childNodes[number];
-                    console.log("IsItMoved: ",childNode,refNode,'i+num=',number,'childNode==refNode:',childNode==refNode);
-                    if(childNode!=refNode){
-                        dom.insertBefore(childNode,refNode);
-                    }
-                });
+                onIsItMoved(number,childNode);
                 removeOldVirtualDOMCopys.push(oldItemVirtual.index);
             }
             // console.log(newItemVirtua)
-        } else if(oldVnode.attrs.key===undefined||oldVnode.attrs.key===null){
-            const childNode = dom.childNodes[i+num];
-            diffVnode(oldVnode,newVnode,childNode,Update);
+        } else if(!oldVnode||oldVnode.attrs.key||oldVnode.attrs.key===0){
+            onAdd(number,newVnode);
+        } else if(newVirtualDOMId[oldVnode.attrs.key]){
             removeOldVirtualDOMCopys.push(i);
-        } else{
+        } else if(!oldVnode.attrs.key&&oldVnode.attrs.key!==0){
+            const childNode = dom.childNodes[number];
+            diffVnode(oldVnode,newVnode,childNode,Update);
+            Move.push(function (){
+                const refNode = number>dom.childNodes.length?null: dom.childNodes[number];
+                console.log("Move: ",childNode,number,refNode,'i+num=',i+num,'childNode==refNode:',childNode==refNode);
+                if(childNode!=refNode){
+                    dom.insertBefore(childNode,refNode);
+                }
+            });
             removeOldVirtualDOMCopys.push(i);
         }
         domIndex.key++;
     }
     removeOldVirtualDOMCopys = removeOldVirtualDOMCopys.sort((a,b)=>b-a);
-    // console.log("removeOldVirtualDOMCopys:",removeOldVirtualDOMCopys);
     removeOldVirtualDOMCopys.forEach(item=>{
         oldVirtualDOMCopy.splice(item,1);
     });
-    // console.log('Delete oldVirtualDOMCopy: ',oldVirtualDOMCopy);
+    // console.log("removeOldVirtualDOMCopys:",removeOldVirtualDOMCopys);
+    console.log('Delete oldVirtualDOMCopy: ',oldVirtualDOMCopy);
+    console.log('oldVirtualDOMId: ',oldVirtualDOMId);
     for (let i=oldVirtualDOMCopy.length;i>0;--i){
         const item = oldVirtualDOMCopy[i-1];
         const oldItemVirtual = oldVirtualDOMId[item.attrs.key];
-        const childNode = dom.childNodes[oldItemVirtual.index+num];
+        // console.log(oldItemVirtual);
+        let childNode;
+        if(oldItemVirtual){
+            childNode = dom.childNodes[oldItemVirtual.index+num];
+            console.log("delete oldItem：oldItemVirtual.index+num=",oldItemVirtual.index+num);
+        }else{
+            console.log("delete oldItem：item.index+num=",item.index+num);
+            childNode = dom.childNodes[item.index+num];
+        }
         console.log("delete oldItem:",childNode);
         Delete.push(function () {
-            if(childNode.parentNode){
-                childNode.parentNode.removeChild(childNode);
-            }
+            if(childNode.parentNode) childNode.parentNode.removeChild(childNode);
         })
     }
 
