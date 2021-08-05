@@ -28,10 +28,11 @@ class Profile extends React.Component{
         super();
         this.state = {
             num:5,
-            // array: ["",6,"","",4,"",9,7],
+            array: ["",6,"","",4,"",9,7],
             // array: ["","",7,9,""],
-            array: ["", 7, 3, 5, 8, 9, "", "", 4]
+            // array: ["", 7, 3, 5, 8, 9, "", "", 4]
             // array: [5, 8, "", 6, "", "", "", 7, ""]
+            // array: [3, 15, 9, null, null, 7, 13]
         }
     }
 
@@ -71,9 +72,9 @@ class Profile extends React.Component{
         while(true){
             // 只生成随机数
             if(array.length<num){
-                let rand = parseInt(Math.random()*36);
+                let rand = parseInt(Math.random()*12);
                 if(!obj[rand]){
-                    // rand = rand<3?null:rand;
+                    rand = rand<3?null:rand;
                     array.push(rand);
                     obj[rand] = 1;
                 }else{
@@ -88,6 +89,7 @@ class Profile extends React.Component{
         // array = [6, 9, 5, 4, "", 8, 7, ""]
         // array = [7, 8, 3, "", 9, 4, ""]
         // array = [4, "", 8, "", 6, 9, 7, 3, "", 5]
+        // array = [null, 12, null, null, null, 7, 10, 6]
         console.log("oldArray:",oldArray);
         console.log("array:   ",array)
         this.setState({

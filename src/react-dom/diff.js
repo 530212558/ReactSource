@@ -181,6 +181,7 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
                 });
                 removeOldVirtualDOMCopys.push(oldItemVirtual.index);
             } else if (oldItemVirtual.index===i){
+                // console.log(oldItemVirtual.index,i,childNode,newVnode.attrs);
                 diffVnode(oldItemVirtual.value,newVnode,childNode,Update);
                 onIsItMoved(number,childNode);
                 removeOldVirtualDOMCopys.push(oldItemVirtual.index);
@@ -229,7 +230,7 @@ function diffListVnode(oldVirtualDOM,newVirtualDOM,domIndex,dom,patch){
         })
     }
 
-    patch.push(...Delete,...Move,...Add,...IsItMoved,...Update)
+    patch.push(...Delete,...Move,...IsItMoved,...Add,...Update)
 }
 
 function diffAttribute(dom, vnode) {
