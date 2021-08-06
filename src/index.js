@@ -33,6 +33,7 @@ class Profile extends React.Component{
             // array: ["", 7, 3, 5, 8, 9, "", "", 4]
             // array: [5, 8, "", 6, "", "", "", 7, ""]
             // array: [3, 15, 9, null, null, 7, 13]
+            // array: [9, 4, null, null, 10, null]
         }
     }
 
@@ -90,6 +91,7 @@ class Profile extends React.Component{
         // array = [7, 8, 3, "", 9, 4, ""]
         // array = [4, "", 8, "", 6, 9, 7, 3, "", 5]
         // array = [null, 12, null, null, null, 7, 10, 6]
+        // array = [11, null, 3, 9, 10]
         console.log("oldArray:",oldArray);
         console.log("array:   ",array)
         this.setState({
@@ -98,9 +100,17 @@ class Profile extends React.Component{
         })
     }
 
+    testDiff(){
+        let i = 0;
+        while (i<20){
+            i++;
+            this.handlerClick();
+        }
+    }
+
     render(){
         return (
-            <div className={this.props.title} onClick={this.handlerClick.bind(this)}>
+            <div className={this.props.title} onClick={this.testDiff.bind(this)}>
                 num:{this.state.num}
                 {
                     this.state.num%2==0&&<input type="text" value={`2134566`} />
