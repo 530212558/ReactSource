@@ -93,19 +93,35 @@ class Profile extends React.Component{
         // array = [null, 12, null, null, null, 7, 10, 6]
         // array = [11, null, 3, 9, 10]
         console.log("oldArray:",oldArray);
-        console.log("array:   ",array)
+        console.log("array:   ",array);
         this.setState({
             num:this.state.num+=1,
             array
+        })
+        const div = document.getElementById(`container`).getElementsByTagName('div');
+
+        [...div].forEach((item,index)=>{
+            const key = item.getAttribute('key');
+            if(key!=array[index]){
+                throw "错误结果";
+            }else{
+                console.table({
+                    'index:':index,
+                    'key:':key,
+                    'array[index]:':array[index],
+                    "key==array[index]:":key==array[index]
+                });
+            }
         })
     }
 
     testDiff(){
         let i = 0;
-        while (i<20){
+        while (i<1000){
             i++;
             this.handlerClick();
         }
+
     }
 
     render(){
@@ -120,7 +136,7 @@ class Profile extends React.Component{
                 {/*}*/}
                 <img src="avatar.png" className={`profile${this.state.num}`} />
                 <h3 >  {this.props.title} num:{this.state.num} </h3>
-                <div className={`contaioner`}>
+                <div className={`contaioner`} id={`container`}>
                     header
                     {
                         this.state.array.map((item,key)=>(
